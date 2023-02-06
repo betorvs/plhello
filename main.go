@@ -6,7 +6,7 @@ and it will expose two endpoints:
 
 Others variables:
   - PORT: default 9090
-  - APP_NAME: default plhello
+  - APP_NAME: default plhello, use only "_" because it will be used by prometheus and so on.
   - LOG_FORMAT: default logfmt
   - LOG_LEVEL: default INFO
   - TRACE_ENDPOINT: default disabled. Options: stdout or GRPC endpoint

@@ -1,5 +1,7 @@
 # plhello
 
+[![Go Test](https://github.com/betorvs/plhello/actions/workflows/push.yaml/badge.svg)](https://github.com/betorvs/plhello/actions/workflows/push.yaml)   
+
 It's a custom hello world service that based on environment variables to return a greeting.
 
 ## Requirements

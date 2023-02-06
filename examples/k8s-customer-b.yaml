@@ -24,7 +24,7 @@ spec:
               containerPort: 9090
           env: 
             - name: APP_NAME
-              value: "customer-b"
+              value: "customer_b"
             - name: CUSTOMER_NAME
               value: "B"
             - name: CUSTOMER_GREETING
