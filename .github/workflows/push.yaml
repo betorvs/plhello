@@ -1,0 +1,86 @@
+name: Go Test
+
+on: [push]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    - name: Set up Go 1.19
+      uses: actions/setup-go@v3
+      with:
+        go-version: '>=1.19.0'
+      id: go
+    - name: Run golangci-lint
+      uses: golangci/golangci-lint-action@v3
+      with:
+        args: --timeout=5m
+
+  test:
+    needs: lint
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    - name: Set up Go 1.19
+      uses: actions/setup-go@v3
+      with:
+        go-version: '>=1.19.0'
+      id: go
+    - name: Test
+      run: go test -v ./... -covermode=count -coverprofile=coverage.out
+    - name: SonarQube Scan
+      uses: sonarsource/sonarqube-scan-action@master
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        SONAR_HOST_URL: "https://sonarcloud.io"
+  
+  k3d:
+    needs: test
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    - name: Set up Go 1.19
+      uses: actions/setup-go@v3
+      with:
+        go-version: '>=1.19.0'
+      id: go
+    - name: k3d-test
+      shell: bash
+      run: |
+        curl -s https://raw.githubusercontent.com/rancher/k3d/main/install.sh | bash
+        bash scripts/deploy-k3d.sh -c 
+        sleep 30
+        bash scripts/build-n-push.sh "k3d-customer-registry:5050/plhello" "v0.1.0"
+        bash scripts/deploy-k3d.sh -r
+        sleep 30
+        bash scripts/deploy-k3d.sh -l
+        bash scripts/deploy-k3d.sh -t
+        bash scripts/deploy-k3d.sh -d
+
+  publish:
+    needs: k3d 
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+    - name: Publish to Registry
+      uses: elgohr/Publish-Docker-Github-Action@v5
+      env:
+        BUILD_REF: ${{vars.GITHUB_SHA}}
+      with:
+        name: betorvs/plhello
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+        platforms: linux/amd64,linux/arm64
+
+      

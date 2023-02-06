@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: customer-b
+  namespace: customer-b
+  labels:
+    app: customer-b
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: customer-b
+  template:
+    metadata:
+      labels:
+        app: customer-b
+    spec:
+      containers:
+        - name: web
+          image: k3d-customer-registry:5050/plhello:v0.1.0
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: 9090
+          env: 
+            - name: APP_NAME
+              value: "customer-b"
+            - name: CUSTOMER_NAME
+              value: "B"
+            - name: CUSTOMER_GREETING
+              value: "Dear Sir or Madam"
+            - name: TRACE_ENDPOINT
+              value: "disabled"
+          resources:
+            requests:
+              memory: "16Mi"
+              cpu: "10m"
+            limits:
+              memory: "32Mi"
+              cpu: "20m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: customer-b
+  namespace: customer-b
+spec:
+  selector:
+    app: customer-b
+  ports:
+    - protocol: TCP
+      port: 9090
+      targetPort: 9090
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: customer-b
+  namespace: customer-b
+spec:
+  rules:
+  - host: "customer-b.localhost"
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: customer-b
+            port:
+              number: 9090
