@@ -58,7 +58,7 @@ jobs:
         curl -s https://raw.githubusercontent.com/rancher/k3d/main/install.sh | bash
         bash scripts/deploy-k3d.sh -c 
         sleep 30
-        bash scripts/build-n-push.sh "k3d-customer-registry:5050/plhello" "v0.1.0"
+        bash scripts/build-n-push.sh "k3d-customer-registry:5050/plhello" "v0.1.0" local
         bash scripts/deploy-k3d.sh -r
         sleep 30
         bash scripts/deploy-k3d.sh -l
