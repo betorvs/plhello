@@ -121,7 +121,7 @@ Remember to add `127.0.0.1 k3d-customer-registry` to `etc/hosts` to be able to p
 
 Build and push image to local registry
 ```bash
-./scripts/build-n-push.sh "k3d-customer-registry:5050/plhello" "v0.1.0"
+./scripts/build-n-push.sh "k3d-customer-registry:5050/plhello" "v0.1.0" "local-develop" "local"
 ```
 
 Deploy customer applications (-r means re-deploy, in case any change in examples/*yaml).
