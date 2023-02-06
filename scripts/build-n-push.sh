@@ -10,7 +10,7 @@ docker build -t ${REPOSITORY}:${TAG} \
     --build-arg BUILD_REF=${VERSION} \
     .
 
-if [ "${TARGET}" == "local" ]; then 
+if [ "${TARGET}" = "local" ]; then 
     # to avoid error when pushing images to local registry in gh workflow
     docker tag ${REPOSITORY}:${TAG} localhost:5050/plhello:${TAG}
     docker push localhost:5050/plhello:${TAG}
