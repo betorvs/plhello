@@ -54,11 +54,13 @@ jobs:
       id: go
     - name: k3d-test
       shell: bash
+      env:
+        BUILD_REF: ${{vars.GITHUB_SHA}}
       run: |
         curl -s https://raw.githubusercontent.com/rancher/k3d/main/install.sh | bash
         bash scripts/deploy-k3d.sh -c 
         sleep 30
-        bash scripts/build-n-push.sh "k3d-customer-registry:5050/plhello" "v0.1.0" local
+        bash scripts/build-n-push.sh "k3d-customer-registry:5050/plhello" "v0.1.0" ${BUILD_REF} local
         bash scripts/deploy-k3d.sh -r
         sleep 30
         bash scripts/deploy-k3d.sh -l
@@ -83,5 +85,6 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
         platforms: linux/amd64,linux/arm64
+        buildargs: BUILD_REF
 
       
