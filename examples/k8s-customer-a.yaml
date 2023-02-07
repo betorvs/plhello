@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: web
-          image: k3d-customer-registry:5050/plhello:v0.1.0
+          image: k3d-customer-registry:5050/plhello:v0.1.1
           imagePullPolicy: Always
           ports:
             - name: http
@@ -38,6 +38,17 @@ spec:
             limits:
               memory: "32Mi"
               cpu: "20m"
+          securityContext:
+            allowPrivilegeEscalation: false
+            runAsNonRoot: true
+            readOnlyRootFilesystem: true
+            runAsUser: 10001
+            runAsGroup: 10001
+            seccompProfile:
+              type: RuntimeDefault
+            capabilities:
+              drop:
+                - ALL
 ---
 apiVersion: v1
 kind: Service

@@ -18,8 +18,8 @@ VOLUME /tmp
 RUN apk add --no-cache ca-certificates
 RUN update-ca-certificates
 RUN mkdir -p /app
-RUN addgroup -g 1000 -S app && \
-    adduser -u 1000 -G app -S -D -h /app app && \
+RUN addgroup -g 10001 -S app && \
+    adduser -u 10001 -G app -S -D -h /app app && \
     chmod 755 /app
 COPY --from=golang $LOC/plhello /app
 

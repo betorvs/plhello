@@ -40,7 +40,7 @@ Requirement: [Trivy](https://aquasecurity.github.io/trivy/).
 
 ```
 cd $HOME/go/src/github.com/betorvs/plhello
-trivy fs --security-checks vuln --exit-code 2 .
+trivy fs --security-checks vuln,config --exit-code 2 .
 ```
 
 ### Run it locally
@@ -123,7 +123,7 @@ Remember to add `127.0.0.1 k3d-customer-registry` to `etc/hosts` to be able to p
 
 Build and push image to local registry
 ```bash
-./scripts/build-n-push.sh "k3d-customer-registry:5050/plhello" "v0.1.0" "local-develop" "local"
+./scripts/build-n-push.sh "k3d-customer-registry:5050/plhello" "v0.1.1" "local-develop" "local"
 ```
 
 Deploy customer applications (-r means re-deploy, in case any change in examples/*yaml).
@@ -144,4 +144,12 @@ Delete everything
 Show Pods
 ```
 ./scripts/deploy-k3d.sh -l
+```
+
+### CLI Tips
+
+Get logs
+```
+kubectl logs -n customer-a $(kubectl get pods -n customer-a |grep customer| awk '{print $1}')
+kubectl logs -n customer-b $(kubectl get pods -n customer-b |grep customer| awk '{print $1}')
 ```
