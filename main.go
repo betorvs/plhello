@@ -57,14 +57,14 @@ const disabled = "disabled"
 
 func main() {
 	// Generating application default values
-	port := internal.GetEnv("PORT", "9090")
-	appName := internal.GetEnv("APP_NAME", "plhello")
-	logFormat := internal.GetEnv("LOG_FORMAT", "logfmt")
-	logLevel := internal.GetEnv("LOG_LEVEL", "INFO")
+	port := getEnv("PORT", "9090")
+	appName := getEnv("APP_NAME", "plhello")
+	logFormat := getEnv("LOG_FORMAT", "logfmt")
+	logLevel := getEnv("LOG_LEVEL", "INFO")
 	log := logger.InitLogger(appName, logFormat, logLevel)
 	// Options: stdout for stdout output
 	// grpc endpoint
-	traceEndpoint := internal.GetEnv("TRACE_ENDPOINT", disabled)
+	traceEndpoint := getEnv("TRACE_ENDPOINT", disabled)
 
 	log.Info("msg", "loading service build info "+build)
 	// Checking variables for customer
@@ -106,7 +106,12 @@ func main() {
 	pprof.Register(e)
 
 	// exporting customer, log and tracer
-	internal.InitApplication(appCustomer, log, tracer)
+	// internal.InitApplication(appCustomer, log, tracer)
+	app := &internal.Application{
+		Customer: appCustomer,
+		Logger:   log,
+		Tracer:   tracer,
+	}
 
 	g := e.Group("/v1")
 	g.Use(middleware.CORSWithConfig(middleware.CORSConfig{
@@ -115,8 +120,8 @@ func main() {
 		AllowMethods: []string{echo.GET, echo.HEAD, echo.PUT, echo.POST, echo.DELETE, echo.OPTIONS},
 	}))
 
-	g.GET("/health", internal.CheckHealth)
-	g.GET("/greeting", internal.Greeting)
+	g.GET("/health", app.CheckHealth)
+	g.GET("/greeting", app.Greeting)
 
 	// Start server
 	// From echo docs: https://echo.labstack.com/cookbook/graceful-shutdown/
@@ -186,4 +191,12 @@ func initTracer(appName, endpoint string, log logger.Logger) (*sdktrace.TracerPr
 	otel.SetTracerProvider(tp)
 	otel.SetTextMapPropagator(propagation.NewCompositeTextMapPropagator(propagation.TraceContext{}, propagation.Baggage{}))
 	return tp, nil
+}
+
+// getEnv gets an environment variable content or a default value
+func getEnv(key, defaultValue string) string {
+	if value, ok := os.LookupEnv(key); ok {
+		return value
+	}
+	return defaultValue
 }
