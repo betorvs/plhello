@@ -12,7 +12,7 @@ type health struct {
 }
 
 // CheckHealth handles the application Health Check
-func CheckHealth(c echo.Context) error {
+func (a Application) CheckHealth(c echo.Context) error {
 	health := health{}
 	health.Status = "UP"
 	return c.JSON(http.StatusOK, health)

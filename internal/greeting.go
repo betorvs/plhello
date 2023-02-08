@@ -2,6 +2,7 @@ package internal
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/labstack/echo/v4"
 	"go.opentelemetry.io/otel/attribute"
@@ -14,15 +15,22 @@ type Answer struct {
 }
 
 // Greeting function resposible for answering what a customer whats to say
-func Greeting(c echo.Context) error {
-	hello := App.Customer.Hello()
+func (a Application) Greeting(c echo.Context) error {
+	greetingFormat := "json"
+	query := c.QueryParam("format")
+	if query != "" {
+		a.Logger.Debug("msg", "format query parameter received")
+		greetingFormat = strings.ToLower(query)
+	}
+	hello := a.Customer.Hello()
 	// Example of child span
-	_, span := App.Tracer.Start(c.Request().Context(), "Greeting", trace.WithAttributes(attribute.String("say", hello)))
+	_, span := a.Tracer.Start(c.Request().Context(), "Greeting", trace.WithAttributes(attribute.String("say", hello), attribute.String("format", greetingFormat)))
 	defer span.End()
 	res := Answer{
 		Say: hello,
 	}
-	switch App.GreetingFormat {
+
+	switch greetingFormat {
 	case "string":
 		return c.String(http.StatusOK, hello)
 	default:
