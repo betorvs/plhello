@@ -79,13 +79,13 @@ jobs:
     - name: Publish to Registry
       uses: elgohr/Publish-Docker-Github-Action@v5
       env:
-        BUILD_REF: ${{vars.GITHUB_SHA}}
+        BUILD_REF: ${{ github.sha }}
       with:
         name: betorvs/plhello
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
         platforms: linux/amd64,linux/arm64
-        snapshot: true
-        buildoptions: "--build-arg BUILD_REF=${BUILD_REF}"
+        tags: "latest,main-${{ github.sha }}"
+        buildargs: BUILD_REF
 
       
