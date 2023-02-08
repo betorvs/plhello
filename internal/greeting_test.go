@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/betorvs/plhello/internal/customer"
+	"github.com/betorvs/plhello/internal/platform/logger"
 	"github.com/labstack/echo/v4"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/trace"
@@ -16,13 +17,16 @@ func TestGetGreeting(t *testing.T) {
 	// "mocking" tracing
 	_ = trace.NewNoopTracerProvider()
 	tracer := otel.Tracer("test")
+	log := logger.InitLogger("testgreeting", "logfmt", "INFO")
 	// creating echo instance
 	e := echo.New()
 	// creating a customer
 	customer, _ := customer.NewCustomer("A", "Hello")
+	// creating a customer
 	app := Application{
 		Customer: customer,
 		Tracer:   tracer,
+		Logger:   log,
 	}
 	t.Log("Given a echo instance and a valid customer")
 	{
